@@ -7,4 +7,5 @@ export const store = configureStore({
     cart: cartReducer,
     dropdown: dropdownReducer,
   },
+  
 });
