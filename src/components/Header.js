@@ -48,7 +48,7 @@ const Header = () => {
       <hr className='mx-11' />
 
       <div className="flex flex-rows px-11 justify-between my-10">
-        <div><img src='brand.svg' alt="Brand" /></div>
+        <div><Image src='brand.svg' alt="Brand" /></div>
         <div className='w-2/5'>
           <div className="relative flex flex-row">
             <button
@@ -56,7 +56,7 @@ const Header = () => {
               className="border border-[#D1D1D1] rounded-l px-4 py-2 font-bold leading-6 text-black bg-[#F9F9F9] flex items-center justify-between w-64"
             >
               {selectedCategory}
-              <img
+              <Image
                 src="DropDownArrow.svg"
                 alt="Dropdown Arrow"
                 className={`transition-transform duration-300 ${isCategoryOpen ? 'rotate-180' : 'rotate-0'
@@ -87,12 +87,12 @@ const Header = () => {
           </div>
         </div>
         <div className='flex flex-row gap-5'>
-          <img className='w-6 h-6 self-center' src="ic-actions-user.svg" alt="User" />
+          <Image className='w-6 h-6 self-center' src="ic-actions-user.svg" alt="User" />
           <button
             onClick={handleToggle}
             className="p-0 border-none bg-transparent"
           >
-            <img
+            <Image
               src={showCart ? 'shopping-bag-svgrepo-com.svg' : 'ic-ecommerce-basket.svg'}
               alt={showCart ? 'Show Products' : 'Show Cart'}
               className="w-6 h-6"
@@ -109,7 +109,7 @@ const Header = () => {
                 onClick={() => dispatch(toggleDropdown(link))}
               >
                 <span>{link}</span>
-                <img
+                <Image
                   src="DropDownArrow.svg"
                   alt="Dropdown Arrow"
                   className={`transition-transform duration-300 ${activeDropdown === link ? 'rotate-180' : 'rotate-0'

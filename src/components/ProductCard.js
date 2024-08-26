@@ -4,7 +4,7 @@ const ProductCard = ({ id, title, price, description, discount }) => {
     return (
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="mb-4">
-          <img src="Basics.svg" alt={title} className="w-full h-48 object-cover" />
+          <Image src="Basics.svg" alt={title} className="w-full h-48 object-cover" />
         </div>
         <div className="space-y-2">
           {discount && <span className="text-red-500 font-bold">{discount}% OFF</span>}
