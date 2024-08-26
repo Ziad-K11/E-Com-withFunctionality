@@ -1,19 +1,59 @@
 import Link from 'next/link';
-import { useState } from 'react';
-import { toggleCart } from '../redux/cartSlice';
+import { useState, useEffect, useRef } from 'react';
+import { toggleCart,selectCartItemCount } from '../redux/cartSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleDropdown, closeDropdown } from '../redux/dropdownSlice';
+import Image from 'next/image';
 
 const Header = () => {
   const dispatch = useDispatch();
   const showCart = useSelector((state) => state.cart.showCart);
   const activeDropdown = useSelector((state) => state.dropdown.activeDropdown);
+  const cartItemCount = useSelector(selectCartItemCount);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All categories');
+  const dropdownRef = useRef(null);
+  const searchDropdownRef = useRef(null);
 
-  const handleToggle = () => {
-    dispatch(toggleCart());
+  const handleOpenCart = () => {
+    if (!showCart) {
+      dispatch(toggleCart());
+    }
   };
+
+  const handleGoBack = () => {
+    if (showCart) {
+      dispatch(toggleCart());
+    }
+  };
+
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    setIsCategoryOpen(false);
+  };
+
+  const handleClickOutside = (event) => {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target)
+    ) {
+      dispatch(closeDropdown());
+    }
+
+    if (
+      searchDropdownRef.current &&
+      !searchDropdownRef.current.contains(event.target)
+    ) {
+      setIsCategoryOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const dropdownData = {
     Bakery: ['Cakes', 'Breads', 'Pastries'],
@@ -24,11 +64,6 @@ const Header = () => {
     'Special nutrition': ['Gluten-free', 'Vegan', 'Organic'],
     Baby: ['Diapers', 'Baby Food', 'Toys'],
     Pharmacy: ['Medicines', 'Vitamins', 'Supplements'],
-  };
-
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
-    setIsCategoryOpen(false);
   };
 
   return (
@@ -48,9 +83,13 @@ const Header = () => {
       <hr className='mx-11' />
 
       <div className="flex flex-rows px-11 justify-between my-10">
-        <div><Image src='brand.svg' alt="Brand" /></div>
+        <div>
+          <button onClick={handleGoBack}>
+            <Image src='brand.svg' alt="Brand" width={177} height={50} />
+          </button>
+        </div>
         <div className='w-2/5'>
-          <div className="relative flex flex-row">
+          <div className="relative flex flex-row" ref={searchDropdownRef}>
             <button
               onClick={() => setIsCategoryOpen(!isCategoryOpen)}
               className="border border-[#D1D1D1] rounded-l px-4 py-2 font-bold leading-6 text-black bg-[#F9F9F9] flex items-center justify-between w-64"
@@ -59,14 +98,15 @@ const Header = () => {
               <Image
                 src="DropDownArrow.svg"
                 alt="Dropdown Arrow"
+                width={12}
+                height={6}
                 className={`transition-transform duration-300 ${isCategoryOpen ? 'rotate-180' : 'rotate-0'
-                  } w-4 h-4`}
+                  }`}
               />
             </button>
             {isCategoryOpen && (
               <div
                 className="absolute mt-8 w-64 bg-[#F9F9F9] border border-[#D1D1D1] rounded-lg shadow-lg z-50"
-                onMouseLeave={() => setIsCategoryOpen(false)}
               >
                 {Object.keys(dropdownData).map((category) => (
                   <button
@@ -87,23 +127,29 @@ const Header = () => {
           </div>
         </div>
         <div className='flex flex-row gap-5'>
-          <Image className='w-6 h-6 self-center' src="ic-actions-user.svg" alt="User" />
+          <Image className='self-center' src="ic-actions-user.svg" alt="User" width={24} height={24} />
           <button
-            onClick={handleToggle}
-            className="p-0 border-none bg-transparent"
+            onClick={handleOpenCart}
+            className="relative p-0 border-none bg-transparent"
           >
             <Image
-              src={showCart ? 'shopping-bag-svgrepo-com.svg' : 'ic-ecommerce-basket.svg'}
-              alt={showCart ? 'Show Products' : 'Show Cart'}
-              className="w-6 h-6"
+              src='ic-ecommerce-basket.svg'
+              alt="Cart"
+              width={24}
+              height={24}
             />
+            {cartItemCount > 0 && (
+              <span className="absolute top-0 right-0 text-xs font-bold bg-red-500 text-white rounded-full px-2 py-1">
+                {cartItemCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
       <nav className="bg-[#F9F9F9] py-2 pl-11">
         <div className="container mx-auto flex space-x-4 gap-10">
           {Object.keys(dropdownData).map((link) => (
-            <div key={link} className="relative">
+            <div key={link} className="relative" ref={dropdownRef}>
               <button
                 className="hover:text-gray-700 flex items-center space-x-1"
                 onClick={() => dispatch(toggleDropdown(link))}
@@ -112,14 +158,15 @@ const Header = () => {
                 <Image
                   src="DropDownArrow.svg"
                   alt="Dropdown Arrow"
+                  width={12}
+                  height={6}
                   className={`transition-transform duration-300 ${activeDropdown === link ? 'rotate-180' : 'rotate-0'
-                    } w-4 h-4`}
+                    }`}
                 />
               </button>
               {activeDropdown === link && (
                 <div
                   className="absolute mt-2 bg-white shadow-lg rounded-lg z-50"
-                  onMouseLeave={() => dispatch(closeDropdown())}
                 >
                   {dropdownData[link].map((item) => (
                     <Link

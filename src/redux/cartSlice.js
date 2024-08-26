@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  items: [],
-  totalQuantity: 0,
-  totalAmount: 0,
-  showCart: false,
+  items: [],         // Array to hold cart items
+  totalQuantity: 0, // Total quantity of all items in the cart
+  totalAmount: 0,   // Total price of all items in the cart
+  showCart: false,  // Boolean to toggle cart visibility
 };
 
 const cartSlice = createSlice({
@@ -17,6 +17,7 @@ const cartSlice = createSlice({
     addItem: (state, action) => {
       const newItem = action.payload;
       const existingItem = state.items.find(item => item.id === newItem.id);
+
       if (existingItem) {
         existingItem.quantity++;
         existingItem.totalPrice += newItem.price;
@@ -28,42 +29,37 @@ const cartSlice = createSlice({
           totalPrice: newItem.price,
           name: newItem.name,
         });
-        state.totalQuantity++;
       }
+
+      // Update totalQuantity and totalAmount
+      state.totalQuantity += 1;
       state.totalAmount += newItem.price;
     },
     removeItem: (state, action) => {
       const id = action.payload;
       const existingItem = state.items.find(item => item.id === id);
+
       if (existingItem) {
-        state.totalAmount -= existingItem.price;
         existingItem.quantity--;
+        state.totalAmount -= existingItem.price;
+
         if (existingItem.quantity === 0) {
           state.items = state.items.filter(item => item.id !== id);
+        } else {
+          existingItem.totalPrice -= existingItem.price;
         }
+
+        // Update totalQuantity
         state.totalQuantity--;
+
+        if (state.totalQuantity < 0) {
+          state.totalQuantity = 0; // Ensure it doesn't go negative
+        }
       }
     },
   },
 });
 
 export const { addItem, removeItem, toggleCart } = cartSlice.actions;
+export const selectCartItemCount = (state) => state.cart.totalQuantity;
 export default cartSlice.reducer;
-// src/features/cart/cartSlice.js
-
-// import { createSlice } from '@reduxjs/toolkit';
-
-// const cartSlice = createSlice({
-//   name: 'cart',
-//   initialState: {
-//     showCart: false,
-//   },
-//   reducers: {
-//     toggleCart: (state) => {
-//       state.showCart = !state.showCart;
-//     },
-//   },
-// });
-
-// export const { toggleCart } = cartSlice.actions;
-// export default cartSlice.reducer;
